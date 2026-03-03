@@ -22,8 +22,8 @@ spring:
 
 app:
   jwt:
-    secret: ${JWT_SECRET:mySecretKeyForJWTTokenGenerationAndValidation123456}
-    expiration: ${JWT_EXPIRATION:86400000}
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION:24h}
 
 springdoc:
   api-docs:
