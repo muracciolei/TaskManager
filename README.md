@@ -199,6 +199,3 @@ The frontend follows component-based architecture with:
 - Services for API communication
 - Pages for routing
 
----
-
-Built with ❤️ for remote teams
