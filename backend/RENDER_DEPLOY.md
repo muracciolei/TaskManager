@@ -79,7 +79,7 @@ In the Render dashboard, add these environment variables:
 | Key | Value | Notes |
 |-----|-------|-------|
 | `PORT` | `10000` | Render assigns this dynamically, but set a default |
-| `JWT_SECRET` | `your-secure-random-secret-key` | Generate a strong secret! |
+| `JWT_SECRET` | `a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6` | Generate your own for production: `openssl rand -base64 32` |
 | `JWT_EXPIRATION` | `86400000` | 24 hours in milliseconds |
 | `SPRING_PROFILES_ACTIVE` | `prod` | Optional: if you have prod profile |
 
