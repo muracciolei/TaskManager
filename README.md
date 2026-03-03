@@ -31,6 +31,8 @@ ReactSpringBoot/
 │   │       └── resources/
 │   │           └── application.yml
 │   ├── pom.xml
+│   ├── Dockerfile           # Docker configuration for deployment
+│   ├── RENDER_DEPLOY.md     # Render.com deployment guide
 │   └── README.md
 │
 ├── frontend/                # React + Vite
@@ -165,6 +167,23 @@ The frontend proxies API requests from port 5173 to port 8080.
 - Stateless authentication
 - CORS enabled for development
 
+## Deployment
+
+### Docker & Render.com
+
+The backend includes a production-ready `Dockerfile` for deployment to container platforms like Render.com.
+
+**Quick Deploy Steps:**
+
+1. Push project to GitHub
+2. Create a new Web Service on Render.com
+3. Select "Docker" as the environment
+4. Set Root Directory to `backend`
+5. Add environment variables (JWT_SECRET, etc.)
+6. Deploy!
+
+See [`backend/RENDER_DEPLOY.md`](backend/RENDER_DEPLOY.md) for detailed step-by-step instructions.
+
 ## Future Improvements
 
 ### Backend
@@ -198,4 +217,3 @@ The frontend follows component-based architecture with:
 - Custom hooks for reusable logic
 - Services for API communication
 - Pages for routing
-
