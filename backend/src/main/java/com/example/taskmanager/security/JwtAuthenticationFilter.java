@@ -55,13 +55,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (!authHeader.startsWith("Bearer ")) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid Authorization header");
+            writeForbidden(response, "Invalid Authorization header");
             return;
         }
 
         final String jwt = authHeader.substring(7).trim();
         if (jwt.isEmpty() || !jwtUtil.validateToken(jwt)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid or expired JWT token");
+            writeForbidden(response, "Invalid or expired JWT token");
             return;
         }
 
@@ -76,7 +76,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // If user exists and token is valid, set authentication
                 if (user == null) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid or expired JWT token");
+                    writeForbidden(response, "Invalid or expired JWT token");
                     return;
                 }
 
@@ -89,10 +89,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid or expired JWT token");
+            writeForbidden(response, "Invalid or expired JWT token");
             return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void writeForbidden(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"status\":403,\"error\":\"Forbidden\",\"message\":\"" + message + "\"}");
     }
 }
