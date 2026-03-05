@@ -33,8 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(TaskController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(properties = {
-    "app.jwt.secret=thisIsAVeryLongSecretKeyForTestingPurposes1234567890ABCDEFGHIJKLMNOP",
-    "app.jwt.expiration=86400"
+    "app.jwt.secret=a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6",
+    "app.jwt.expiration=24h"
 })
 class TaskControllerTest {
 
