@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,8 @@ import java.util.Locale;
  */
 @Component
 public class JwtUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
     /**
      * Secret key for JWT token generation and validation.
@@ -34,26 +38,38 @@ public class JwtUtil {
 
     @PostConstruct
     public void validateConfiguration() {
+        logger.info("JWT Configuration: Initializing JWT utility...");
+        logger.debug("JWT Secret length from config: {}", secret != null ? secret.length() : 0);
         validateSecret();
         expirationMillis = parseExpirationToMillis(expiration);
+        logger.info("JWT Configuration: Validation successful. Secret length: {}, Expiration: {}", 
+                    secret != null ? secret.length() : 0, expiration);
     }
 
     private void validateSecret() {
         if (secret == null || secret.trim().isEmpty()) {
+            logger.error("JWT_SECRET is not set or is empty. Please set the JWT_SECRET environment variable.");
             throw new IllegalStateException("JWT secret is required. Set the JWT_SECRET environment variable.");
         }
 
         String trimmedSecret = secret.trim();
-        String lowerSecret = trimmedSecret.toLowerCase(Locale.ROOT);
+        logger.debug("JWT Secret (first 4 chars): {}", trimmedSecret.substring(0, Math.min(4, trimmedSecret.length())) + "...");
+        
         if (trimmedSecret.length() < 48) {
+            logger.error("JWT_SECRET is too short. Current length: {}, Required minimum: 48", trimmedSecret.length());
             throw new IllegalStateException("JWT secret must be at least 48 characters long.");
         }
+        
+        String lowerSecret = trimmedSecret.toLowerCase(Locale.ROOT);
         if (lowerSecret.contains("secret") || lowerSecret.contains("changeme") || lowerSecret.contains("password")) {
+            logger.error("JWT_SECRET contains weak keywords. This is not secure.");
             throw new IllegalStateException("JWT secret appears weak. Use a long random value.");
         }
         if (trimmedSecret.chars().distinct().count() < 12) {
+            logger.error("JWT_SECRET has too few unique characters. Current unique chars: {}", trimmedSecret.chars().distinct().count());
             throw new IllegalStateException("JWT secret appears weak. Use a long random value.");
         }
+        logger.debug("JWT_SECRET validation passed. Length: {}, Unique chars: {}", trimmedSecret.length(), trimmedSecret.chars().distinct().count());
     }
 
     private long parseExpirationToMillis(String rawExpiration) {
@@ -96,24 +112,32 @@ public class JwtUtil {
     }
 
     public String generateToken(String email) {
+        logger.debug("Generating JWT token for email: {}", email);
         long now = System.currentTimeMillis();
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + expirationMillis))
                 .signWith(getSigningKey())
                 .compact();
+        logger.debug("JWT token generated successfully for: {}", email);
+        return token;
     }
 
     public String extractEmail(String token) {
+        logger.debug("Extracting email from JWT token");
         return extractAllClaims(token).getSubject();
     }
 
     public boolean validateToken(String token) {
+        logger.debug("Validating JWT token");
         try {
             Claims claims = extractAllClaims(token);
-            return !claims.getExpiration().before(new Date());
+            boolean isValid = !claims.getExpiration().before(new Date());
+            logger.debug("JWT token validation result: {}", isValid);
+            return isValid;
         } catch (Exception e) {
+            logger.warn("JWT token validation failed: {}", e.getMessage());
             return false;
         }
     }
